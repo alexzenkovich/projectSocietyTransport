@@ -1,23 +1,32 @@
+import java.util.List;
+
 public class Passenger extends Thread{
     private int idPas;
     private int startStation;
     private int finishStation;
     private boolean isFinish;
-    private Station station;
+    private List<Station> stations;
     private Street street;
 
-    public Passenger(int idPas, int startStation, int finishStation){
+    public Passenger(int idPas, int startStation, int finishStation, List<Station> stations){
         this.idPas = idPas;
         this.startStation = startStation;
         this.finishStation = finishStation;
+        this.stations = stations;
     }
 
     public void run(){
-        if (isFinish()){
-            System.out.printf("Пассажир№ %d добрался до своей остановки№ %d", idPas, finishStation);
+        for (Station station : stations){
+            if (startStation==station.getId())station.getWaiters().add(this);
+        }
+        while (!isFinish()){
+            if (startStation==finishStation) {
+                isFinish = true;
+                System.out.printf("Пассажир№ %d добрался до своей остановки№ %d\n", idPas, finishStation);
+            }
+
         }
     }
-
 
     public int getIdPas() {
         return idPas;
@@ -51,22 +60,6 @@ public class Passenger extends Thread{
         isFinish = finish;
     }
 
-    public Station getStation() {
-        return station;
-    }
-
-    public void setStation(Station station) {
-        this.station = station;
-    }
-
-    public Street getStreet() {
-        return street;
-    }
-
-    public void setStreet(Street street) {
-        this.street = street;
-    }
-
     @Override
     public String toString() {
         return "Passenger{" +
@@ -74,8 +67,6 @@ public class Passenger extends Thread{
                 ", startStation=" + startStation +
                 ", finishStation=" + finishStation +
                 ", isFinish=" + isFinish +
-                ", station=" + station +
-                ", street=" + street +
                 '}';
     }
 }

@@ -4,9 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 public class Street {
     public static final int LENGTH = 3000;
+    private static List<Station> stations;
     private List<Bus> buses;
     private List<Passenger> passengers;
-    private List<Station> stations;
 
     public Street(List<Bus> buses, List<Passenger> passengers, List<Station> stations) {
         this.buses = buses;
@@ -15,6 +15,7 @@ public class Street {
     }
 
     public void initBuses() throws InterruptedException {
+        initPassengers();
         System.out.println("Start buses...");
         for (Bus bus : buses) {
             TimeUnit.SECONDS.sleep(3);
@@ -45,11 +46,7 @@ public class Street {
         this.passengers = passengers;
     }
 
-    public List<Station> getStations() {
+    public static List<Station> getStations() {
         return stations;
-    }
-
-    public void setStations(List<Station> stations) {
-        this.stations = stations;
     }
 }

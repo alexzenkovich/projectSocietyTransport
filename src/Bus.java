@@ -8,13 +8,13 @@ public class Bus extends Thread {
     private boolean isMoving;
     private boolean isMovingBack;
     private Map<Integer, Integer> listPass = new HashMap<>();
-    private Station station;
-    private Street street;
+    private List<Station> stations;
 
-    public Bus(int idBus, int capacityBus, int speed) {
+    public Bus(int idBus, int capacityBus, int speed, List<Station> stations) {
         this.idBus = idBus;
         this.capacityBus = capacityBus;
         this.speed = speed;
+        this.stations = stations;
     }
 
     public void run() {
@@ -22,15 +22,8 @@ public class Bus extends Thread {
         while (true) {
             if (isMoving) {
                 move();
-                System.out.printf("автобус№%d на позиции№%d\n", idBus, position);
-                for (Station station : getStreet().getStations()) {
-                    if (position == station.getPosition()) {
-                        isMoving = false;
-                        station.setBusy(true);
-                        station.takePassenger(this);
-                        station.sendPassenger(this);
-                    }
-                }
+ //               System.out.printf("автобус№%d на позиции№%d\n", idBus, position);
+                checkStation(stations);
             }
         }
     }
@@ -42,6 +35,17 @@ public class Bus extends Thread {
         } else {
             position -= speed;
             if (position == 0) isMovingBack = false;
+        }
+    }
+
+    public void checkStation(List<Station> stations){
+        for (Station station : stations){
+            if (position == station.getPosition() && !station.isBusy()){
+                isMoving = false;
+                station.setBusy(true);
+                station.takePassenger(this);
+                station.sendPassenger(this);
+            }
         }
     }
 
@@ -101,20 +105,12 @@ public class Bus extends Thread {
         this.listPass = listPass;
     }
 
-    public Station getStation() {
-        return station;
+    public List<Station> getStations() {
+        return stations;
     }
 
-    public void setStation(Station station) {
-        this.station = station;
-    }
-
-    public Street getStreet() {
-        return street;
-    }
-
-    public void setStreet(Street street) {
-        this.street = street;
+    public void setStations(List<Station> stations) {
+        this.stations = stations;
     }
 
     @Override
@@ -127,8 +123,6 @@ public class Bus extends Thread {
                 ", isMoving=" + isMoving +
                 ", isMovingBack=" + isMovingBack +
                 ", listPass=" + listPass +
-                ", station=" + station +
-                ", street=" + street +
                 '}';
     }
 }

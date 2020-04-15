@@ -19,14 +19,9 @@ public class Station {
     public synchronized void sendPassenger(Bus bus) {
         int start = bus.getListPass().size();
         int count = 0;
-        while (isBusy) {
-            try{
-                wait();
-            }catch (InterruptedException e){ }
-        }
         if (bus.getListPass().size() <= bus.getCapacityBus() || !waiters.isEmpty()) {
             bus.getListPass().put((int) waiters.get(0).getId(), waiters.get(0).getFinishStation());
-            System.out.printf("Пассажир№%d сел в автобус№%d", waiters.get(0).getId(), bus.getIdBus());
+            System.out.printf("Пассажир№%d сел в автобус№%d\n", waiters.get(0).getId(), bus.getIdBus());
             waiters.remove(waiters.get(0));
             count++;
         }
@@ -34,23 +29,16 @@ public class Station {
         System.out.printf("автобус№%d взял %d пассажиров на остановке№%d\n", bus.getIdBus(), result, id);
         isBusy = false;
         bus.setMoving(true);
-        notify();
     }
 
     public synchronized void takePassenger(Bus bus) {
         int start = bus.getListPass().size();
         int count = 0;
-        while (isBusy) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-            }
-        }
         if (bus.getListPass().size() > 0) {
             for (Map.Entry<Integer, Integer> pair : bus.getListPass().entrySet()) {
                 for (Passenger passenger : street.getPassengers()){
                     if (passenger.getFinishStation()==pair.getValue()){
-                        passenger.setFinish(true);
+                        passenger.setStartStation(id);
                     }
                 }
                 if (pair.getValue() == id) {
@@ -61,7 +49,6 @@ public class Station {
         }
         int result = start - count;
         System.out.printf("автобус№%d высадил %d пассажиров на остановке№%d\n", bus.getIdBus(), result, id);
-        notify();
     }
 
     public int getId() {

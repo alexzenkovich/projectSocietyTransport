@@ -12,13 +12,6 @@ public class Main {
         int numberOfStations = 10;         //количество остановок - 10;
         int numberPassengers = 10;        //общее число пассажиров - 300;
 
-        List<Bus> buses = new ArrayList<Bus>(){                        //создаем автобусы
-            {
-                for (int i = 0; i < numberBuses; i++) {
-                    add(new Bus(i, busCapacity, speedBus));
-                }
-            }
-        };
         List<Station> stations = new ArrayList<Station>() {            //создаем остановки
             {
                 int pos = 0;
@@ -28,16 +21,23 @@ public class Main {
                 }
             }
         };
+        List<Bus> buses = new ArrayList<Bus>(){                        //создаем автобусы
+            {
+                for (int i = 0; i < numberBuses; i++) {
+                    add(new Bus(i, busCapacity, speedBus, stations));
+                }
+            }
+        };
+
         List<Passenger> passengers = new ArrayList<Passenger>(){        //создаем пассажиров
             {
                 for (int i = 0; i < numberPassengers; i++){
-                    add(new Passenger(i, new Random().nextInt(stations.size()), new Random().nextInt(stations.size())));
+                    add(new Passenger(i, new Random().nextInt(stations.size()), new Random().nextInt(stations.size()), stations));
                 }
             }
         };
 
         Street street = new Street(buses, passengers, stations);
-        street.initPassengers();
         street.initBuses();
 
 /*        System.out.println(buses);
