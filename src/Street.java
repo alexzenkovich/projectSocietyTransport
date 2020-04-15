@@ -4,18 +4,14 @@ import java.util.concurrent.TimeUnit;
 
 public class Street {
     public static final int LENGTH = 3000;
-    private static List<Station> stations;
+    private List<Station> stations;
     private List<Bus> buses;
     private List<Passenger> passengers;
 
-    public Street(List<Bus> buses, List<Passenger> passengers, List<Station> stations) {
-        this.buses = buses;
-        this.passengers = passengers;
-        this.stations = stations;
+    public Street() {
     }
 
     public void initBuses() throws InterruptedException {
-        initPassengers();
         System.out.println("Start buses...");
         for (Bus bus : buses) {
             TimeUnit.SECONDS.sleep(3);
@@ -23,11 +19,29 @@ public class Street {
         }
     }
 
-    public void initPassengers(){
+    public void initPassengers() {
         System.out.println("start passengers...");
-        for (Passenger passenger : passengers){
+        for (Passenger passenger : passengers) {
+            for (Station station : stations) {
+                if (passenger.getStartStation() == station.getId()) {
+                    station.getWaiters().add(passenger);
+                }
+            }
             passenger.start();
+            System.out.println(passenger);
         }
+    }
+
+    public void checkPassengers() {
+        passengers.removeIf(Passenger::isFinish);
+    }
+
+    public List<Station> getStations() {
+        return stations;
+    }
+
+    public void setStations(List<Station> stations) {
+        this.stations = stations;
     }
 
     public List<Bus> getBuses() {
@@ -44,9 +58,5 @@ public class Street {
 
     public void setPassengers(List<Passenger> passengers) {
         this.passengers = passengers;
-    }
-
-    public static List<Station> getStations() {
-        return stations;
     }
 }

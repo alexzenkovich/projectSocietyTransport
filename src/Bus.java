@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Bus extends Thread {
     private int idBus;
@@ -7,14 +8,17 @@ public class Bus extends Thread {
     private int position;
     private boolean isMoving;
     private boolean isMovingBack;
-    private Map<Integer, Integer> listPass = new HashMap<>();
-    private List<Station> stations;
+    private int numberPeopleInBus;
+    private List<Integer> listPas = new LinkedList<>();
+    private Street street;
+    ReentrantLock locker;
 
-    public Bus(int idBus, int capacityBus, int speed, List<Station> stations) {
+    public Bus(int idBus, int capacityBus, int speed, Street street, ReentrantLock locker) {
         this.idBus = idBus;
         this.capacityBus = capacityBus;
         this.speed = speed;
-        this.stations = stations;
+        this.street = street;
+        this.locker = locker;
     }
 
     public void run() {
@@ -22,9 +26,9 @@ public class Bus extends Thread {
         while (true) {
             if (isMoving) {
                 move();
- //               System.out.printf("автобус№%d на позиции№%d\n", idBus, position);
-                checkStation(stations);
+                checkStation(street.getStations());
             }
+ //           System.out.printf("автобус№%d на позиции№%d\n", idBus, position);
         }
     }
 
@@ -38,14 +42,16 @@ public class Bus extends Thread {
         }
     }
 
-    public void checkStation(List<Station> stations){
-        for (Station station : stations){
-            if (position == station.getPosition() && !station.isBusy()){
+    public void checkStation(List<Station> stations) {
+        for (Station station : stations) {
+            locker.lock();
+            if (position == station.getPosition() && !station.isBusy()) {
                 isMoving = false;
                 station.setBusy(true);
                 station.takePassenger(this);
                 station.sendPassenger(this);
             }
+            locker.unlock();
         }
     }
 
@@ -97,20 +103,28 @@ public class Bus extends Thread {
         isMovingBack = movingBack;
     }
 
-    public Map<Integer, Integer> getListPass() {
-        return listPass;
+    public int getNumberPeopleInBus() {
+        return numberPeopleInBus;
     }
 
-    public void setListPass(Map<Integer, Integer> listPass) {
-        this.listPass = listPass;
+    public void setNumberPeopleInBus(int numberPeopleInBus) {
+        this.numberPeopleInBus = numberPeopleInBus;
     }
 
-    public List<Station> getStations() {
-        return stations;
+    public List<Integer> getListPas() {
+        return listPas;
     }
 
-    public void setStations(List<Station> stations) {
-        this.stations = stations;
+    public void setListPas(List<Integer> listPas) {
+        this.listPas = listPas;
+    }
+
+    public Street getStreet() {
+        return street;
+    }
+
+    public void setStreet(Street street) {
+        this.street = street;
     }
 
     @Override
@@ -122,7 +136,7 @@ public class Bus extends Thread {
                 ", position=" + position +
                 ", isMoving=" + isMoving +
                 ", isMovingBack=" + isMovingBack +
-                ", listPass=" + listPass +
+                ", numberPeopleInBus=" + numberPeopleInBus +
                 '}';
     }
 }

@@ -1,54 +1,63 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Station {
     private int id;
     private int position;
     private boolean isBusy;
-    private List<Passenger> waiters;
-    private Bus bus;
+    private Queue<Passenger> waiters;
     private Street street;
 
-    public Station(int id, int position) {
+    public Station(int id, int position, Street street) {
         this.id = id;
         this.position = position;
-        waiters = new ArrayList<>();
+        this.street = street;
+        waiters = new LinkedList<>();
     }
 
     public synchronized void sendPassenger(Bus bus) {
-        int start = bus.getListPass().size();
         int count = 0;
-        if (bus.getListPass().size() <= bus.getCapacityBus() || !waiters.isEmpty()) {
-            bus.getListPass().put((int) waiters.get(0).getId(), waiters.get(0).getFinishStation());
-            System.out.printf("Пассажир№%d сел в автобус№%d\n", waiters.get(0).getId(), bus.getIdBus());
-            waiters.remove(waiters.get(0));
-            count++;
+        if (waiters.size() > 0) {
+            Passenger passenger;
+            while (bus.getListPas().size() < bus.getCapacityBus() || !waiters.isEmpty()) {
+                passenger = waiters.poll();
+                if (passenger != null) {
+                    bus.getListPas().add(passenger.getFinishStation());
+                    System.out.printf("Пассажир№%d сел в автобус№%d\n", passenger.getId() - 11, bus.getIdBus());
+                    System.out.println("on the station: " + waiters);
+                    System.out.println("in the bus: " + bus.getListPas());
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            if (count>0) {
+                System.out.printf("автобус№%d взял %d пассажиров на остановке№%d\n", bus.getIdBus(), count, id);
+            }
         }
-        int result = start + count;
-        System.out.printf("автобус№%d взял %d пассажиров на остановке№%d\n", bus.getIdBus(), result, id);
         isBusy = false;
         bus.setMoving(true);
     }
 
     public synchronized void takePassenger(Bus bus) {
-        int start = bus.getListPass().size();
         int count = 0;
-        if (bus.getListPass().size() > 0) {
-            for (Map.Entry<Integer, Integer> pair : bus.getListPass().entrySet()) {
-                for (Passenger passenger : street.getPassengers()){
-                    if (passenger.getFinishStation()==pair.getValue()){
+        if (bus.getListPas().size() > 0) {
+            for (int i = 0; i < bus.getListPas().size(); i++) {
+                for (Passenger passenger : street.getPassengers()) {
+                    if (bus.getListPas().get(i) == passenger.getFinishStation()) {
                         passenger.setStartStation(id);
                     }
                 }
-                if (pair.getValue() == id) {
-                    bus.getListPass().remove(pair.getKey(), pair.getValue());
+                if (bus.getListPas().get(i) == id) {
+                    bus.getListPas().remove(bus.getListPas().get(i));
+                    System.out.println("in the bus: " + bus.getListPas());
                     count++;
                 }
             }
+            if (count>0) {
+                System.out.printf("автобус№%d высадил %d пассажиров на остановке№%d\n", bus.getIdBus(), count, id);
+            }
         }
-        int result = start - count;
-        System.out.printf("автобус№%d высадил %d пассажиров на остановке№%d\n", bus.getIdBus(), result, id);
     }
 
     public int getId() {
@@ -76,12 +85,20 @@ public class Station {
         else isBusy = false;
     }
 
-    public List<Passenger> getWaiters() {
+    public Queue<Passenger> getWaiters() {
         return waiters;
     }
 
-    public void setWaiters(List<Passenger> waiters) {
+    public void setWaiters(Queue<Passenger> waiters) {
         this.waiters = waiters;
+    }
+
+    public Street getStreet() {
+        return street;
+    }
+
+    public void setStreet(Street street) {
+        this.street = street;
     }
 
     @Override
@@ -91,7 +108,6 @@ public class Station {
                 ", position=" + position +
                 ", isBusy=" + isBusy +
                 ", waiters=" + waiters +
-                ", bus=" + bus +
                 ", street=" + street +
                 '}';
     }

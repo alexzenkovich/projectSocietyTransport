@@ -1,27 +1,22 @@
 import java.util.List;
 
-public class Passenger extends Thread{
+public class Passenger extends Thread {
     private int idPas;
     private int startStation;
     private int finishStation;
     private boolean isFinish;
-    private List<Station> stations;
     private Street street;
 
-    public Passenger(int idPas, int startStation, int finishStation, List<Station> stations){
+    public Passenger(int idPas, int startStation, int finishStation, Street street) {
         this.idPas = idPas;
         this.startStation = startStation;
         this.finishStation = finishStation;
-        this.stations = stations;
+        this.street = street;
     }
 
-    public void run(){
-        for (Station station : stations){
-            if (startStation==station.getId())station.getWaiters().add(this);
-        }
-        while (!isFinish()){
-            if (startStation==finishStation) {
-                isFinish = true;
+    public void run() {
+        while (!isFinish()) {
+            if (isFinish) {
                 System.out.printf("Пассажир№ %d добрался до своей остановки№ %d\n", idPas, finishStation);
             }
 
@@ -58,6 +53,14 @@ public class Passenger extends Thread{
 
     public void setFinish(boolean finish) {
         isFinish = finish;
+    }
+
+    public Street getStreet() {
+        return street;
+    }
+
+    public void setStreet(Street street) {
+        this.street = street;
     }
 
     @Override
