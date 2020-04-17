@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -15,57 +16,53 @@ public class Station {
         waiters = new LinkedList<>();
     }
 
-    public synchronized void sendPassenger(Bus bus) {
+    public void sendPassenger(Bus bus) {
         int count = 0;
-        if (waiters.size() > 0) {
+        if (!waiters.isEmpty() && bus.getListPas().size() < bus.getCapacityBus()) {
             Passenger passenger;
             while (bus.getListPas().size() < bus.getCapacityBus() || !waiters.isEmpty()) {
                 passenger = waiters.poll();
                 if (passenger != null) {
-                    bus.getListPas().add(passenger.getFinishStation());
-                    System.out.printf("Пассажир№%d сел в автобус№%d\n", passenger.getId() - 11, bus.getIdBus());
-                    System.out.println("on the station: " + waiters);
-                    System.out.println("in the bus: " + bus.getListPas());
+                    bus.getListPas().add(passenger.getIdPas());
+                    System.out.printf("Пассажир№%d сел в автобус№%d на остановке#%d осталось %d человек, в автобусе %d\n",
+                            passenger.getIdPas(), bus.getIdBus(), id, waiters.size(), bus.getListPas().size());
                     count++;
+                    if (bus.getListPas().size() == bus.getCapacityBus()) break;
                 } else {
                     break;
                 }
             }
-            if (count>0) {
-                System.out.printf("автобус№%d взял %d пассажиров на остановке№%d\n", bus.getIdBus(), count, id);
+            if (count > 0) {
+//                System.out.printf("автобус№%d взял %d пассажиров на остановке№%d\n", bus.getIdBus(), count, id);
+            } else {
+//                System.out.printf("на остановке№%d никого не было автобус№%d едет дальше\n", id, bus.getIdBus());
             }
         }
         isBusy = false;
         bus.setMoving(true);
     }
 
-    public synchronized void takePassenger(Bus bus) {
+    public void takePassenger(Bus bus) {
         int count = 0;
         if (bus.getListPas().size() > 0) {
-            for (int i = 0; i < bus.getListPas().size(); i++) {
-                for (Passenger passenger : street.getPassengers()) {
-                    if (bus.getListPas().get(i) == passenger.getFinishStation()) {
-                        passenger.setStartStation(id);
-                    }
-                }
-                if (bus.getListPas().get(i) == id) {
-                    bus.getListPas().remove(bus.getListPas().get(i));
-                    System.out.println("in the bus: " + bus.getListPas());
+            Iterator<Integer> iterator = bus.getListPas().iterator();
+            while (iterator.hasNext()) {
+                int temp = iterator.next();
+                if (temp == id) {
+                    street.checkAndSetFinishPassenger(temp, id);
+                    iterator.remove();
                     count++;
                 }
             }
-            if (count>0) {
+            if (count > 0) {
                 System.out.printf("автобус№%d высадил %d пассажиров на остановке№%d\n", bus.getIdBus(), count, id);
+                System.out.println("after station: " + id + " in the bus: " + bus.getListPas());
             }
         }
     }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getPosition() {

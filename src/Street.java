@@ -1,20 +1,22 @@
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Street {
     public static final int LENGTH = 3000;
+    private int interval;
     private List<Station> stations;
     private List<Bus> buses;
     private List<Passenger> passengers;
 
-    public Street() {
+    public Street(int interval) {
+        this.interval = interval;
     }
 
     public void initBuses() throws InterruptedException {
         System.out.println("Start buses...");
         for (Bus bus : buses) {
-            TimeUnit.SECONDS.sleep(3);
+            TimeUnit.MILLISECONDS.sleep(interval);
             bus.start();
         }
     }
@@ -28,12 +30,30 @@ public class Street {
                 }
             }
             passenger.start();
-            System.out.println(passenger);
+ //           System.out.println(passenger);
         }
     }
 
-    public void checkPassengers() {
-        passengers.removeIf(Passenger::isFinish);
+    public synchronized void checkAndSetFinishPassenger(int idPassenger, int idStation) {
+        for (Station station : stations) {
+            Passenger passenger;
+            Iterator<Passenger> iterator = passengers.iterator();
+            while (iterator.hasNext()) {
+                passenger = iterator.next();
+                if (passenger.getIdPas() == idPassenger && station.getId() == idStation) {
+                    System.out.println(passenger.getState());
+                    passenger.setFinish(true);
+                    System.out.println(passenger.getState());
+                    System.out.printf("pass-r#%d finish state: %b \n", passenger.getIdPas(), passenger.isFinish());
+                    iterator.remove();
+                }
+            }
+        }
+        printList(passengers);
+    }
+
+    public synchronized void printList(List<Passenger> list) {
+        System.out.println("number of all passangers: " + list.size());
     }
 
     public List<Station> getStations() {
@@ -42,10 +62,6 @@ public class Street {
 
     public void setStations(List<Station> stations) {
         this.stations = stations;
-    }
-
-    public List<Bus> getBuses() {
-        return buses;
     }
 
     public void setBuses(List<Bus> buses) {

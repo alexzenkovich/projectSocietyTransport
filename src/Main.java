@@ -6,13 +6,13 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         int numberBuses = 1;               //количество автобусов - 5;
-        int busCapacity = 5;              //вместимость автобуса - 50;
+        int busCapacity = 10;              //вместимость автобуса - 50;
         int speedBus = 10;                 //скорость автобуса - 60;
-        int interval = 2000;               //интервал между автобусами - 1000;
-        int numberOfStations = 5;         //количество остановок - 10;
-        int numberPassengers = 3;        //общее число пассажиров - 300;
+        int intervalBetweenBuses = 500;               //интервал между автобусами - 1000;
+        int numberOfStations = 10;         //количество остановок - 10;
+        int numberPassengers = 5;        //общее число пассажиров - 300;
 //---------------------------------------------------------------------------------------------------------------------
-        Street street = new Street();
+        Street street = new Street(intervalBetweenBuses);
         ReentrantLock locker = new ReentrantLock();
 
         List<Station> stations = new ArrayList<Station>() {            //создаем остановки
@@ -42,18 +42,17 @@ public class Main {
         street.setStations(stations);
         street.setBuses(buses);
         street.setPassengers(passengers);
-        for (Station station : street.getStations()){
-            System.out.println(station);
-        }
+
         street.initPassengers();
-        street.checkPassengers();
-        for (Station station : street.getStations()) {
-            System.out.println(station.getWaiters());
-        }
+
         street.initBuses();
-        while (passengers.size()>0){
-            street.checkPassengers();
+
+        if (street.getPassengers().size()==0){
+            System.out.println("Все пассажиры добрались!!!");
         }
+
+//        street.printList(passengers);
+
 
 /*        System.out.println(buses);
         System.out.println(passengers);

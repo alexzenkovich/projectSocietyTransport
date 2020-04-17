@@ -1,14 +1,14 @@
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Bus extends Thread {
-    private int idBus;
-    private int capacityBus;
-    private int speed;
+    private final int idBus;
+    private final int capacityBus;
+    private final int speed;
     private int position;
     private boolean isMoving;
     private boolean isMovingBack;
-    private int numberPeopleInBus;
     private List<Integer> listPas = new LinkedList<>();
     private Street street;
     ReentrantLock locker;
@@ -23,16 +23,22 @@ public class Bus extends Thread {
 
     public void run() {
         isMoving = true;
-        while (true) {
-            if (isMoving) {
+        while (street.getPassengers().size() > 0) {
+            if (isMoving()) {
                 move();
-                checkStation(street.getStations());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                    checkStation(street.getStations());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
- //           System.out.printf("автобус№%d на позиции№%d\n", idBus, position);
+            //           System.out.printf("автобус№%d на позиции№%d\n", idBus, position);
         }
+        System.out.printf("автобус№%d закончил рейс\n", idBus);
     }
 
-    public void move() {
+    private void move() {
         if (!isMovingBack()) {
             position += speed;
             if (position == Street.LENGTH) isMovingBack = true;
@@ -42,16 +48,18 @@ public class Bus extends Thread {
         }
     }
 
-    public void checkStation(List<Station> stations) {
+    private void checkStation(List<Station> stations) throws InterruptedException {
         for (Station station : stations) {
-            locker.lock();
             if (position == station.getPosition() && !station.isBusy()) {
                 isMoving = false;
+                locker.lock();
                 station.setBusy(true);
+ //               System.out.printf("автобус№%d приехал на остановку№%d \n", idBus, station.getId());
                 station.takePassenger(this);
                 station.sendPassenger(this);
+//                System.out.printf("автобус№%d уехал с остановки№%d \n", idBus, station.getId());
+                locker.unlock();
             }
-            locker.unlock();
         }
     }
 
@@ -59,32 +67,8 @@ public class Bus extends Thread {
         return idBus;
     }
 
-    public void setIdBus(int idBus) {
-        this.idBus = idBus;
-    }
-
     public int getCapacityBus() {
         return capacityBus;
-    }
-
-    public void setCapacityBus(int capacityBus) {
-        this.capacityBus = capacityBus;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
     }
 
     public boolean isMoving() {
@@ -99,24 +83,8 @@ public class Bus extends Thread {
         return isMovingBack;
     }
 
-    public void setMovingBack(boolean movingBack) {
-        isMovingBack = movingBack;
-    }
-
-    public int getNumberPeopleInBus() {
-        return numberPeopleInBus;
-    }
-
-    public void setNumberPeopleInBus(int numberPeopleInBus) {
-        this.numberPeopleInBus = numberPeopleInBus;
-    }
-
     public List<Integer> getListPas() {
         return listPas;
-    }
-
-    public void setListPas(List<Integer> listPas) {
-        this.listPas = listPas;
     }
 
     public Street getStreet() {
@@ -132,11 +100,7 @@ public class Bus extends Thread {
         return "Bus{" +
                 "idBus=" + idBus +
                 ", capacityBus=" + capacityBus +
-                ", speed=" + speed +
-                ", position=" + position +
-                ", isMoving=" + isMoving +
-                ", isMovingBack=" + isMovingBack +
-                ", numberPeopleInBus=" + numberPeopleInBus +
+                ", listPas=" + listPas +
                 '}';
     }
 }

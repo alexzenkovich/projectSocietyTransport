@@ -16,10 +16,9 @@ public class Passenger extends Thread {
 
     public void run() {
         while (!isFinish()) {
-            if (isFinish) {
+            if (isFinish()) {
                 System.out.printf("Пассажир№ %d добрался до своей остановки№ %d\n", idPas, finishStation);
             }
-
         }
     }
 
