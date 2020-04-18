@@ -22,34 +22,38 @@ public class Street {
     }
 
     public void initPassengers() {
-        System.out.println("start passengers...");
+        System.out.println("Start passengers...");
         for (Passenger passenger : passengers) {
-            for (Station station : stations) {
-                if (passenger.getStartStation() == station.getId()) {
-                    station.getWaiters().add(passenger);
-                }
-            }
             passenger.start();
- //           System.out.println(passenger);
+//            System.out.println(passenger);
         }
     }
 
-    public synchronized void checkAndSetFinishPassenger(int idPassenger, int idStation) {
+    public synchronized boolean checkAndSetFinishPassenger(int idPassenger, int idStation) {
         for (Station station : stations) {
             Passenger passenger;
             Iterator<Passenger> iterator = passengers.iterator();
             while (iterator.hasNext()) {
                 passenger = iterator.next();
-                if (passenger.getIdPas() == idPassenger && station.getId() == idStation) {
-                    System.out.println(passenger.getState());
+                if (passenger.getIdPas() == idPassenger && station.getId() == idStation &&
+                        passenger.getFinishStation()==idStation) {
                     passenger.setFinish(true);
-                    System.out.println(passenger.getState());
-                    System.out.printf("pass-r#%d finish state: %b \n", passenger.getIdPas(), passenger.isFinish());
+                    passenger.setCurrentStation(station.getId());
+//                    System.out.printf("pass-r#%d finish state: %b \n", passenger.getIdPas(), passenger.isFinish());
+                    System.out.printf("Passenger# %d got out at the bus stop# %d\n",
+                            passenger.getIdPas(), passenger.getFinishStation());
+/*                    try{
+                        TimeUnit.MILLISECONDS.sleep(10);
+                    }catch(InterruptedException e){}*/
                     iterator.remove();
+                    passenger.interrupt();
+                    System.out.println(passenger.getIdPas() + " " + passenger.getState());
+                    printList(passengers);
+                    return true;
                 }
             }
         }
-        printList(passengers);
+        return false;
     }
 
     public synchronized void printList(List<Passenger> list) {

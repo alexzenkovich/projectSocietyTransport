@@ -1,6 +1,7 @@
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 public class Station {
     private int id;
@@ -24,8 +25,13 @@ public class Station {
                 passenger = waiters.poll();
                 if (passenger != null) {
                     bus.getListPas().add(passenger.getIdPas());
-                    System.out.printf("Пассажир№%d сел в автобус№%d на остановке#%d осталось %d человек, в автобусе %d\n",
-                            passenger.getIdPas(), bus.getIdBus(), id, waiters.size(), bus.getListPas().size());
+ /*                   try {
+                        TimeUnit.MILLISECONDS.sleep(10);
+                    }catch(InterruptedException e){}*/
+                    System.out.printf("Passenger# %d got into the bus# %d, his finish bus stop is %d. " +
+                                    "On the busstop# %d left %d, in the bus: %d\n",
+                            passenger.getIdPas(), bus.getIdBus(), passenger.getFinishStation(), id,
+                            waiters.size(), bus.getListPas().size());
                     count++;
                     if (bus.getListPas().size() == bus.getCapacityBus()) break;
                 } else {
@@ -33,9 +39,9 @@ public class Station {
                 }
             }
             if (count > 0) {
-//                System.out.printf("автобус№%d взял %d пассажиров на остановке№%d\n", bus.getIdBus(), count, id);
+                System.out.printf("Bus# %d took %d passengers on the bus stop# %d\n", bus.getIdBus(), count, id);
             } else {
-//                System.out.printf("на остановке№%d никого не было автобус№%d едет дальше\n", id, bus.getIdBus());
+                System.out.printf("There was nobody at the bus stop# %d. The bus# %d goes on.\n", id, bus.getIdBus());
             }
         }
         isBusy = false;
@@ -48,15 +54,16 @@ public class Station {
             Iterator<Integer> iterator = bus.getListPas().iterator();
             while (iterator.hasNext()) {
                 int temp = iterator.next();
-                if (temp == id) {
-                    street.checkAndSetFinishPassenger(temp, id);
+                if (street.checkAndSetFinishPassenger(temp, id)) {
                     iterator.remove();
                     count++;
                 }
             }
             if (count > 0) {
-                System.out.printf("автобус№%d высадил %d пассажиров на остановке№%d\n", bus.getIdBus(), count, id);
-                System.out.println("after station: " + id + " in the bus: " + bus.getListPas());
+                System.out.printf("The bus# %d dropped off %d passengers at the bus stop# %d.\n",
+                        bus.getIdBus(), count, id);
+                System.out.println("At the bus stop# " + id + ". In the bus# " + bus.getIdBus() +
+                        " " + bus.getListPas());
             }
         }
     }

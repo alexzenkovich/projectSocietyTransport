@@ -1,4 +1,5 @@
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -11,7 +12,7 @@ public class Bus extends Thread {
     private boolean isMovingBack;
     private List<Integer> listPas = new LinkedList<>();
     private Street street;
-    ReentrantLock locker;
+    private ReentrantLock locker;
 
     public Bus(int idBus, int capacityBus, int speed, Street street, ReentrantLock locker) {
         this.idBus = idBus;
@@ -27,18 +28,19 @@ public class Bus extends Thread {
             if (isMoving()) {
                 move();
                 try {
-                    TimeUnit.MILLISECONDS.sleep(100);
-                    checkStation(street.getStations());
+                    TimeUnit.MILLISECONDS.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                checkStation(street.getStations());
             }
-            //           System.out.printf("автобус№%d на позиции№%d\n", idBus, position);
+//            System.out.printf("Bus# %d is on position# %d\n", idBus, position);
         }
-        System.out.printf("автобус№%d закончил рейс\n", idBus);
+        System.out.printf("Bus№ %d finished route.\n", idBus);
     }
 
     private void move() {
+        locker.lock();
         if (!isMovingBack()) {
             position += speed;
             if (position == Street.LENGTH) isMovingBack = true;
@@ -46,18 +48,19 @@ public class Bus extends Thread {
             position -= speed;
             if (position == 0) isMovingBack = false;
         }
+        locker.unlock();
     }
 
-    private void checkStation(List<Station> stations) throws InterruptedException {
+    private void checkStation(List<Station> stations) {
         for (Station station : stations) {
             if (position == station.getPosition() && !station.isBusy()) {
                 isMoving = false;
                 locker.lock();
                 station.setBusy(true);
- //               System.out.printf("автобус№%d приехал на остановку№%d \n", idBus, station.getId());
+                System.out.printf("Bus# %d arrived to the bus stop# %d \n", idBus, station.getId());
                 station.takePassenger(this);
                 station.sendPassenger(this);
-//                System.out.printf("автобус№%d уехал с остановки№%d \n", idBus, station.getId());
+                System.out.printf("Bus# %d departured from the bus stop# %d\n", idBus, station.getId());
                 locker.unlock();
             }
         }

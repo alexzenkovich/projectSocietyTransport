@@ -3,14 +3,16 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
+
+
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        int numberBuses = 1;               //количество автобусов - 5;
-        int busCapacity = 10;              //вместимость автобуса - 50;
+        int numberBuses = 3;               //количество автобусов - 5;
+        int busCapacity = 12;              //вместимость автобуса - 50;
         int speedBus = 10;                 //скорость автобуса - 60;
         int intervalBetweenBuses = 500;               //интервал между автобусами - 1000;
         int numberOfStations = 10;         //количество остановок - 10;
-        int numberPassengers = 5;        //общее число пассажиров - 300;
+        int numberPassengers = 300;        //общее число пассажиров - 300;
 //---------------------------------------------------------------------------------------------------------------------
         Street street = new Street(intervalBetweenBuses);
         ReentrantLock locker = new ReentrantLock();
@@ -35,7 +37,8 @@ public class Main {
         List<Passenger> passengers = new ArrayList<Passenger>(){        //создаем пассажиров
             {
                 for (int i = 0; i < numberPassengers; i++){
-                    add(new Passenger(i, new Random().nextInt(stations.size()), new Random().nextInt(stations.size()), street));
+                    add(new Passenger(i, new Random().nextInt(stations.size()),
+                            new Random().nextInt(stations.size()), street, locker));
                 }
             }
         };
@@ -48,7 +51,7 @@ public class Main {
         street.initBuses();
 
         if (street.getPassengers().size()==0){
-            System.out.println("Все пассажиры добрались!!!");
+            System.out.println("ALL PASSENGERS CAME TO DESTINATION BUS STOPS!!!");
         }
 
 //        street.printList(passengers);

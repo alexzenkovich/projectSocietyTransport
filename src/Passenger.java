@@ -1,26 +1,35 @@
-import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Passenger extends Thread {
     private int idPas;
-    private int startStation;
+    private int currentStation;
     private int finishStation;
     private boolean isFinish;
     private Street street;
+    private ReentrantLock locker;
 
-    public Passenger(int idPas, int startStation, int finishStation, Street street) {
+    public Passenger(int idPas, int startStation, int finishStation, Street street, ReentrantLock locker) {
         this.idPas = idPas;
-        this.startStation = startStation;
+        this.currentStation = startStation;
         this.finishStation = finishStation;
         this.street = street;
+        this.locker = locker;
     }
 
     public void run() {
-        while (!isFinish()) {
-            if (isFinish()) {
-                System.out.printf("Пассажир№ %d добрался до своей остановки№ %d\n", idPas, finishStation);
+        locker.lock();
+        for (Station station : street.getStations()) {
+            if (currentStation == station.getId()) {
+                station.getWaiters().add(this);
+                System.out.printf("Passenger# %d came to the bus stop# %d\n", idPas, station.getId());
             }
         }
+        locker.unlock();
+        while (street.getPassengers().contains(this)) {}
+        System.out.printf("Passenger# %d came to himself bus stop# %d\n", idPas, finishStation);
     }
+
+
 
     public int getIdPas() {
         return idPas;
@@ -30,12 +39,12 @@ public class Passenger extends Thread {
         this.idPas = id;
     }
 
-    public int getStartStation() {
-        return startStation;
+    public int getCurrentStation() {
+        return currentStation;
     }
 
-    public void setStartStation(int startStation) {
-        this.startStation = startStation;
+    public void setCurrentStation(int startStation) {
+        this.currentStation = startStation;
     }
 
     public int getFinishStation() {
@@ -51,7 +60,8 @@ public class Passenger extends Thread {
     }
 
     public void setFinish(boolean finish) {
-        isFinish = finish;
+        if (finish) isFinish = true;
+        isFinish = false;
     }
 
     public Street getStreet() {
@@ -66,7 +76,7 @@ public class Passenger extends Thread {
     public String toString() {
         return "Passenger{" +
                 "idPas=" + idPas +
-                ", startStation=" + startStation +
+                ", currentStation=" + currentStation +
                 ", finishStation=" + finishStation +
                 ", isFinish=" + isFinish +
                 '}';
