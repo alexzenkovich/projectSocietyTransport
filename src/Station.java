@@ -1,11 +1,10 @@
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.TimeUnit;
 
 public class Station {
-    private int id;
-    private int position;
+    private final int id;
+    private final int position;
     private boolean isBusy;
     private Queue<Passenger> waiters;
     private Street street;
@@ -25,14 +24,12 @@ public class Station {
                 passenger = waiters.poll();
                 if (passenger != null) {
                     bus.getListPas().add(passenger.getIdPas());
- /*                   try {
-                        TimeUnit.MILLISECONDS.sleep(10);
-                    }catch(InterruptedException e){}*/
                     System.out.printf("Passenger# %d got into the bus# %d, his finish bus stop is %d. " +
                                     "On the busstop# %d left %d, in the bus: %d\n",
                             passenger.getIdPas(), bus.getIdBus(), passenger.getFinishStation(), id,
                             waiters.size(), bus.getListPas().size());
                     count++;
+                    bus.setNumberOfPeople(bus.getNumberOfPeople() + 1);
                     if (bus.getListPas().size() == bus.getCapacityBus()) break;
                 } else {
                     break;
@@ -76,33 +73,16 @@ public class Station {
         return position;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
     public boolean isBusy() {
         return isBusy;
     }
 
     public void setBusy(boolean busy) {
-        if (busy) isBusy = true;
-        else isBusy = false;
+        isBusy = busy;
     }
 
     public Queue<Passenger> getWaiters() {
         return waiters;
-    }
-
-    public void setWaiters(Queue<Passenger> waiters) {
-        this.waiters = waiters;
-    }
-
-    public Street getStreet() {
-        return street;
-    }
-
-    public void setStreet(Street street) {
-        this.street = street;
     }
 
     @Override

@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Street {
     public static final int LENGTH = 3000;
-    private int interval;
+    private final int interval;
     private List<Station> stations;
     private List<Bus> buses;
     private List<Passenger> passengers;
@@ -25,7 +25,6 @@ public class Street {
         System.out.println("Start passengers...");
         for (Passenger passenger : passengers) {
             passenger.start();
-//            System.out.println(passenger);
         }
     }
 
@@ -39,15 +38,10 @@ public class Street {
                         passenger.getFinishStation()==idStation) {
                     passenger.setFinish(true);
                     passenger.setCurrentStation(station.getId());
-//                    System.out.printf("pass-r#%d finish state: %b \n", passenger.getIdPas(), passenger.isFinish());
                     System.out.printf("Passenger# %d got out at the bus stop# %d\n",
                             passenger.getIdPas(), passenger.getFinishStation());
-/*                    try{
-                        TimeUnit.MILLISECONDS.sleep(10);
-                    }catch(InterruptedException e){}*/
-                    iterator.remove();
                     passenger.interrupt();
-                    System.out.println(passenger.getIdPas() + " " + passenger.getState());
+                    iterator.remove();
                     printList(passengers);
                     return true;
                 }
@@ -56,7 +50,7 @@ public class Street {
         return false;
     }
 
-    public synchronized void printList(List<Passenger> list) {
+    public void printList(List<Passenger> list) {
         System.out.println("number of all passangers: " + list.size());
     }
 

@@ -8,6 +8,7 @@ public class Bus extends Thread {
     private final int capacityBus;
     private final int speed;
     private int position;
+    private int numberOfPeople;
     private boolean isMoving;
     private boolean isMovingBack;
     private List<Integer> listPas = new LinkedList<>();
@@ -20,6 +21,7 @@ public class Bus extends Thread {
         this.speed = speed;
         this.street = street;
         this.locker = locker;
+        this.numberOfPeople = 0;
     }
 
     public void run() {
@@ -28,15 +30,15 @@ public class Bus extends Thread {
             if (isMoving()) {
                 move();
                 try {
-                    TimeUnit.MILLISECONDS.sleep(10);
+                    System.out.printf("Bus# %d on position# %d\n", idBus, position);
+                    TimeUnit.MILLISECONDS.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 checkStation(street.getStations());
             }
-//            System.out.printf("Bus# %d is on position# %d\n", idBus, position);
         }
-        System.out.printf("Bus№ %d finished route.\n", idBus);
+        System.out.printf("Bus№ %d finished route. The bus transported %d people\n", idBus, numberOfPeople);
     }
 
     private void move() {
@@ -96,6 +98,14 @@ public class Bus extends Thread {
 
     public void setStreet(Street street) {
         this.street = street;
+    }
+
+    public int getNumberOfPeople() {
+        return numberOfPeople;
+    }
+
+    public void setNumberOfPeople(int numberOfPeople) {
+        this.numberOfPeople = numberOfPeople;
     }
 
     @Override

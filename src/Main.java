@@ -7,12 +7,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        int numberBuses = 3;               //количество автобусов - 5;
+        int numberBuses = 5;               //количество автобусов - 5;
         int busCapacity = 12;              //вместимость автобуса - 50;
         int speedBus = 10;                 //скорость автобуса - 60;
         int intervalBetweenBuses = 500;               //интервал между автобусами - 1000;
-        int numberOfStations = 10;         //количество остановок - 10;
-        int numberPassengers = 300;        //общее число пассажиров - 300;
+        int numberOfStations = 20;         //количество остановок - 10;
+        int numberPassengers = 1000;        //общее число пассажиров - 300;
 //---------------------------------------------------------------------------------------------------------------------
         Street street = new Street(intervalBetweenBuses);
         ReentrantLock locker = new ReentrantLock();
@@ -54,11 +54,5 @@ public class Main {
             System.out.println("ALL PASSENGERS CAME TO DESTINATION BUS STOPS!!!");
         }
 
-//        street.printList(passengers);
-
-
-/*        System.out.println(buses);
-        System.out.println(passengers);
-        System.out.println(stations);*/
     }
 }
